@@ -1,0 +1,113 @@
+var http = require('http')
+var through = require('through')
+
+var tr = through(function write(data) {
+    this.queue(data.toString().toUpperCase()) 
+  },
+  function end () { //optional
+    this.queue(null)
+  })
+
+//process.stdin.pipe(tr).pipe(process.stdout)
+
+var server = http.createServer(function (req, res) {
+    if (req.method === 'POST') {
+        req.on('data', function(chunk) {	         	
+	  		//res.write(chunk.toString().toUpperCase())
+	  		tr.pipe(res)
+		});
+    }
+    res.end();
+});
+server.listen(process.argv[2]);
+
+/*
+  #####################################################################
+  ##                       ~~  HTTP SERVER  ~~                       ##
+  #####################################################################
+
+In this challenge, write an http server that uses a through stream to write back
+
+the request stream as upper-cased response data for POST requests.
+
+Streams aren't just for text files and stdin/stdout. Did you know that http
+request and response objects from node core's `http.createServer()` handler are
+also streams?
+
+For example, we can stream a file to the response object:
+
+    var http = require('http');
+    var fs = require('fs');
+    var server = http.createServer(function (req, res) {
+        fs.createReadStream('file.txt').pipe(res);
+    });
+    server.listen(process.argv[2]);
+
+This is great because our server can response immediately without buffering
+everything in memory first.
+
+We can also stream a request to populate a file with data:
+
+    var http = require('http');
+    var fs = require('fs');
+    var server = http.createServer(function (req, res) {
+        if (req.method === 'POST') {
+            req.pipe(fs.createWriteStream('post.txt'));
+        }
+        res.end('beep boop\n');
+    });
+    server.listen(process.argv[2]);
+
+You can test this post server with curl:
+
+    $ node server.js 8000 &
+    $ echo hack the planet | curl -d@- http://localhost:8000
+    beep boop
+    $ cat post.txt
+    hack the planet
+
+Your http server should listen on the port given at process.argv[2] and convert
+the POST request written to it to upper-case using the same approach as the
+TRANSFORM example.
+
+As a refresher, here's an example with the default through callbacks explicitly
+defined:
+
+    var through = require('through')
+    process.stdin.pipe(through(write, end)).pipe(process.stdout);
+
+    function write (buf) { this.queue(buf) }
+    function end () { this.queue(null)
+
+Do that, but send upper-case data in your http server in response to POST data.
+
+Make sure to `npm install through` in the directory where your solution file
+lives.
+
+To verify your program, run: `stream-adventure verify program.js`.
+---------------------------------------------------------------------
+
+ACTUAL                             EXPECTED
+------                             --------
+""                                 ""
+# PASS
+
+Your solution to HTTP SERVER passed!
+
+Here's what the official solution is if you want to compare notes:
+
+    var http = require('http');
+    var through = require('through');
+
+    var server = http.createServer(function (req, res) {
+        if (req.method === 'POST') {
+            req.pipe(through(function (buf) {
+                this.queue(buf.toString().toUpperCase());
+            })).pipe(res);
+        }
+        else res.end('send me a POST\n');
+    });
+    server.listen(parseInt(process.argv[2]));
+
+You have 12 challenges left.
+*/
