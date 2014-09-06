@@ -29,4 +29,10 @@ file lives.
 
 To verify your program, run: `stream-adventure verify program.js`.
 
+
+    var ws = require('websocket-stream');
+    var stream = ws('ws://localhost:8000');
+    stream.end('hello\n');
+    
+
 */

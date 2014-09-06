@@ -1,25 +1,16 @@
-var http = require('http')
-var through = require('through')
+  var http = require('http');
+    var through = require('through');
 
-var tr = through(function write(data) {
-    this.queue(data.toString().toUpperCase()) 
-  },
-  function end () { //optional
-    this.queue(null)
-  })
+    var server = http.createServer(function (req, res) {
+        if (req.method === 'POST') {
+            req.pipe(through(function (buf) {
+                this.queue(buf.toString().toUpperCase());
+            })).pipe(res);
+        }
+        else res.end('send me a POST\n');
+    });
+    server.listen(parseInt(process.argv[2]));
 
-//process.stdin.pipe(tr).pipe(process.stdout)
-
-var server = http.createServer(function (req, res) {
-    if (req.method === 'POST') {
-        req.on('data', function(chunk) {	         	
-	  		//res.write(chunk.toString().toUpperCase())
-	  		tr.pipe(res)
-		});
-    }
-    res.end();
-});
-server.listen(process.argv[2]);
 
 /*
   #####################################################################

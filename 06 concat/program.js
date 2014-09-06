@@ -37,10 +37,17 @@ process.stdin.
 Make sure to `npm install concat-stream` in the directory where your solution
 file is located.
 -----------------------------------------------------------------------
-var concat = require('concat-stream');
+# PASS
 
-process.stdin.pipe(concat(function (src) {
-    var s = src.toString().split('').reverse().join('');
-    console.log(s);
-}));
+Your solution to CONCAT passed!
+
+Here's what the official solution is if you want to compare notes:
+
+    var concat = require('concat-stream');
+    
+    process.stdin.pipe(concat(function (src) {
+        var s = src.toString().split('').reverse().join('');
+        console.log(s);
+    }));
+
 */
